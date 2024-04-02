@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>装备大全</title>
+    <style>
+        /* CSS样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .navbar {
+            background-color: #f1f1f1;
+            padding: 10px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .navbar-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .navbar-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            padding: 10px;
+            width: max-content;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .navbar-dropdown:hover .navbar-dropdown-content {
+            display: block;
+        }
+
+        .navbar-dropdown-content a {
+            display: block;
+            padding: 5px 0;
+            color: #333;
+        }
+
+        .navbar-dropdown-content a:hover {
+            background-color: #ddd;
+        }
+        
+        .toppicture {
+            width: 1690;
+            height: 146px;
+            overflow: hidden;
+        }
+
+        .container {
+            margin: 20px;
+        }
+        
+        .search-bar {
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        #positionSelect {
+            margin-left: 10px;
+            margin-right: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #dataTable th:nth-child(4),
+        #dataTable td:nth-child(4) {
+            width: 40%; /* 设置介绍列的宽度为200px */
+            overflow: hidden; /* 隐藏溢出的内容 */
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f1f1f1;
+        }
+
+        td {
+            height: 50px;
+        }
+        
+        input[type="text"] {
+            padding: 5px;
+            width: 200px;
+        }
+        
+        input[type="submit"] {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 400px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            font-size: 20px;
+        }
+
+        .hoverable:hover {
+            background-color: #ddd;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+
+        window.onload = function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:8080/item/findAll1", true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response1 = JSON.parse(xhr.responseText);
+                    // 处理返回的数据并更新表格 
+                    updateTable1(response1);
+                }
+            };
+            xhr.send();
+
+            var xhr2 = new XMLHttpRequest();
+            xhr2.open("GET", "http://localhost:8080/item/findAll2", true);
+            xhr2.onreadystatechange = function() {
+                if (xhr2.readyState === 4 && xhr2.status === 200) {
+                    var response2 = JSON.parse(xhr2.responseText);
+                    // 处理返回的数据并更新表格 
+                    updateTable2(response2);
+                }
+            };
+            xhr2.send();
+        }
+
+        
+        function updateTable1(data) {
+            // 更新表格的逻辑
+            var table = document.getElementById("dataTable");
+            
+            for (var i = 0; i < data.length; i++) {
+                var row = table.insertRow();
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+               
+
+                cell1.innerHTML = data[i].name;
+                cell2.innerHTML = data[i].price;
+                cell3.innerHTML = data[i].attribute;
+                cell4.innerHTML = data[i].special_effect;
+            }
+        }
+
+        function updateTable2(data) {
+            // 更新表格的逻辑
+            var table = document.getElementById("dataTable");
+            
+            for (var i = 0; i < data.length; i++) {
+                var row = table.insertRow();
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+               
+
+                cell1.innerHTML = `<span onmouseover="showPopup('${data[i].name}')" onmouseout="hidePopup()" class="hoverable">${data[i].name}</span>`;
+                cell2.innerHTML = data[i].price;
+                cell3.innerHTML = data[i].attribute;
+                cell4.innerHTML = data[i].special_effect;
+            }
+        }
+
+        function showPopup(itemName) {
+            var popup = document.getElementById("popup");
+            popup.innerHTML = "Loading...";
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:8080/compose/findBySecondary", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);        
+                    popup.innerHTML = "合成方法："+ response.first_level_item1 + "   +   " + response.first_level_item2
+                        + "   =   " + response.secondary_item;
+                }
+            };
+            var params = "secondary_item=" + itemName; 
+            console.log(params);
+            xhr.send(params);
+            popup.style.display = "block";
+        }
+        function hidePopup() {
+            var popup = document.getElementById("popup");
+            popup.style.display = "none";
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-dropdown">
+            <a href="#">游戏信息</a>
+            <div class="navbar-dropdown-content">
+                <a href="英雄信息.html">英雄列表</a>
+                <a href="装备大全.html">装备大全</a>
+                <a href="英雄技能.html">英雄技能</a>
+            </div>
+        </div>
+        <div class="navbar-dropdown">
+            <a href="#">职业赛事</a>
+            <div class="navbar-dropdown-content">
+                <a href="比赛记录.html">比赛记录</a>
+                <a href="战队介绍.html">战队介绍</a>
+                <a href="选手信息.html">选手信息</a>
+            </div>
+        </div>
+    </div>
+    <div class="toppicture">
+        <img height=100% src="image\装备.jpg " alt="装备大全">
+    </div>
+    
+    <div class="container">
+        <div id="popup"></div>
+        <div class="search-bar">
+        
+        </div>
+        
+        <table id="dataTable">
+            <tr>
+                <th>名称</th>
+                <th>价格</th>
+                <th>属性</th>
+                <th>特殊效果</th>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

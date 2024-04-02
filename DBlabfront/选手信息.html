@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选手信息</title>
+    <style>
+        /* CSS样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .navbar {
+            background-color: #f1f1f1;
+            padding: 10px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .navbar-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .navbar-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            padding: 10px;
+            width: max-content;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .navbar-dropdown:hover .navbar-dropdown-content {
+            display: block;
+        }
+
+        .navbar-dropdown-content a {
+            display: block;
+            padding: 5px 0;
+            color: #333;
+        }
+
+        .navbar-dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .toppicture {
+            width: 1690;
+            height: 146px;
+            overflow: hidden;
+        }
+
+        
+        .container {
+            margin: 20px;
+        }
+        
+        .search-bar {
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        #clubSelect {
+            margin-left: 10px;
+            margin-right: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f1f1f1;
+        }
+        
+        input[type="text"] {
+            padding: 5px;
+            width: 200px;
+        }
+        
+        input[type="submit"] {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+
+        window.onload = function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:8080/player/findAll", true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    // 处理返回的数据并更新表格 
+                    updateTable(response);
+                }
+            };
+            xhr.send();
+
+            var xhr2 = new XMLHttpRequest();
+            xhr2.open("GET", "http://localhost:8080/player/findAllClub", true);
+            xhr2.onreadystatechange = function() {
+                if (xhr2.readyState === 4 && xhr2.status === 200) {
+                    var response = JSON.parse(xhr2.responseText);
+                    // 处理返回的数据并填充下拉框 
+
+                    var clubSelect = document.getElementById("clubSelect");
+                    // 添加下拉框选项
+                    for (var i = 0; i < response.length; i++) {
+                        var option = document.createElement("option");
+                        option.text = response[i];
+                        clubSelect.add(option);
+                    }
+                }
+            };
+            xhr2.send();
+        }
+
+        // JavaScript代码
+        function search() {
+
+            //获取所选择的位置
+            var clubSelect = document.getElementById("clubSelect");
+            var selectedClub = clubSelect.value;
+            
+            // 发送Ajax请求到后端
+            // 这里你需要根据你的具体后端实现进行调整
+            // 可以使用XMLHttpRequest或者fetch等技术发送请求
+            // 并处理后端返回的数据来更新展示的表格
+            var xhr = new XMLHttpRequest();
+            if(selectedClub=="全部"){
+                xhr.open("GET", "http://localhost:8080/player/findAll", true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        // 处理返回的数据并更新表格 
+                        updateTable(response);
+                    }
+                };
+                xhr.send();                
+            }else{
+                xhr.open("POST", "http://localhost:8080/player/findByClub", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        // 处理返回的数据并更新表格
+                        updateTable(response);
+                    }
+                };
+               
+                var params = "club_name=" + selectedClub; 
+                xhr.send(params);  
+            }
+
+        }
+        
+        function updateTable(data) {
+            // 更新表格的逻辑
+            var table = document.getElementById("dataTable");
+            // 清空表格内容，保留表头
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+            
+            for (var i = 0; i < data.length; i++) {
+                var row = table.insertRow();
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+                var cell6 = row.insertCell(5);
+               
+                console.log(data[i]);
+
+                cell1.innerHTML = data[i].name;
+                cell2.innerHTML = data[i].age;
+                cell3.innerHTML = data[i].position;
+                cell4.innerHTML = data[i].club_name;
+                cell5.innerHTML = data[i].province_name;
+                cell6.innerHTML = data[i].country_name;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-dropdown">
+            <a href="#">游戏信息</a>
+            <div class="navbar-dropdown-content">
+                <a href="英雄信息.html">英雄列表</a>
+                <a href="装备大全.html">装备大全</a>
+                <a href="英雄技能.html">英雄技能</a>
+            </div>
+        </div>
+        <div class="navbar-dropdown">
+            <a href="#">职业赛事</a>
+            <div class="navbar-dropdown-content">
+                <a href="比赛记录.html">比赛记录</a>
+                <a href="战队介绍.html">战队介绍</a>
+                <a href="选手信息.html">选手信息</a>
+            </div>
+        </div>
+    </div>
+    <div class="toppicture">
+        <img width=100% src="image\选手.jpg" alt="选手列表">
+    </div>
+    
+    <div class="container">
+        <div class="search-bar">
+            <label for="clubSelect">所属俱乐部:</label>
+            <select id="clubSelect">
+                <option value="全部">全部</option>
+            </select>
+            <input type="submit" value="搜索" onclick="search()">
+        </div>
+        
+        <table id="dataTable">
+            <tr>
+                <th>游戏名</th>
+                <th>年龄</th>
+                <th>位置</th>
+                <th>俱乐部</th>
+                <th>出生地</th>
+                <th>国籍</th>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

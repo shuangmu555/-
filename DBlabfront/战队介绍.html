@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战队介绍</title>
+    <style>
+        /* CSS样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .navbar {
+            background-color: #f1f1f1;
+            padding: 10px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .navbar-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .navbar-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            padding: 10px;
+            width: max-content;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .navbar-dropdown:hover .navbar-dropdown-content {
+            display: block;
+        }
+
+        .navbar-dropdown-content a {
+            display: block;
+            padding: 5px 0;
+            color: #333;
+        }
+
+        .navbar-dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .toppicture {
+            width: 1690;
+            height: 146px;
+            overflow: hidden;
+        }
+
+        
+        .container {
+            margin: 20px;
+        }
+        
+        .search-bar {
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        #clubSelect {
+            margin-left: 10px;
+            margin-right: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f1f1f1;
+        }
+        
+        input[type="text"] {
+            padding: 5px;
+            width: 200px;
+        }
+        
+        input[type="submit"] {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+
+        window.onload = function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:8080/club/findAll", true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    // 处理返回的数据并更新表格 
+                    updateTable(response);
+                }
+            };
+            xhr.send();
+        }
+
+        
+        
+        function updateTable(data) {
+            // 更新表格的逻辑
+            var table = document.getElementById("dataTable");
+            // 清空表格内容，保留表头
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+            
+            for (var i = 0; i < data.length; i++) {
+                var row = table.insertRow();
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+               
+
+                cell1.innerHTML = data[i].name;
+                cell2.innerHTML = `<a href="${data[i].link}">点击查看详细信息</a>`;
+                cell3.innerHTML = data[i].province_name;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-dropdown">
+            <a href="#">游戏信息</a>
+            <div class="navbar-dropdown-content">
+                <a href="英雄信息.html">英雄列表</a>
+                <a href="装备大全.html">装备大全</a>
+                <a href="英雄技能.html">英雄技能</a>
+            </div>
+        </div>
+        <div class="navbar-dropdown">
+            <a href="#">职业赛事</a>
+            <div class="navbar-dropdown-content">
+                <a href="比赛记录.html">比赛记录</a>
+                <a href="战队介绍.html">战队介绍</a>
+                <a href="选手信息.html">选手信息</a>
+            </div>
+        </div>
+    </div>
+    <div class="toppicture">
+        <img width=100% src="image\战队.jpg" alt="战队介绍">
+    </div>
+    
+    <div class="container">
+        <div class="search-bar">
+            <select id="clubSelect">
+                <option value="全部">全部</option>
+            </select>
+            <input type="submit" value="搜索" onclick="search()">
+        </div>
+        
+        <table id="dataTable">
+            <tr>
+                <th>俱乐部名称</th>
+                <th>详细信息</th>
+                <th>所在地</th>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
